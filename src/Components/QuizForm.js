@@ -4,9 +4,10 @@ import { Field, FieldArray, reduxForm, formValueSelector } from 'redux-form';
 import range from 'lodash/range';
 import validate from '../Helpers/validate';
 
+import {firestore} from '../Services/firebaseConfig'; // استيراد ملف التكوين الخاص بـ Firebase
 
 // استيراد وظيفة حفظ الاختبار
-import Quiz, { saveQuiz } from '../Services/QuizModel';
+// import Quiz, { saveQuiz } from '../Services/QuizModel';
 
 class QuizForm extends Component {
   renderInputField = ({ input, label, type, meta: { touched, error } }) => (
@@ -152,24 +153,34 @@ class QuizForm extends Component {
 
 
 
-
+  onSubmit = (values) => {
+    // حفظ الاختبار في قاعدة البيانات Firebase
+    firestore.database().ref('quizzes').push(values)
+      .then(() => {
+        // تم حفظ الاختبار بنجاح
+        console.log('Quiz saved successfully')
+      })
+      .catch((error) => {
+        // حدث خطأ أثناء حفظ الاختبار
+      });
+  };
 
 
   
-  handleSubmit = (values) => {
-    // قم بتشغيل وظيفة saveQuiz هنا واستخدامها لحفظ الاختبار
-    const quiz = new Quiz();
-    quiz.quizTitle = values.quizTitle;
-    quiz.quizSynopsis = values.quizSynopsis;
-    quiz.saveQuiz(); // استخدام وظيفة saveQuiz
-  }
+  // handleSubmit = (values) => {
+  //   // قم بتشغيل وظيفة saveQuiz هنا واستخدامها لحفظ الاختبار
+  //   const quiz = new Quiz();
+  //   quiz.quizTitle = values.quizTitle;
+  //   quiz.quizSynopsis = values.quizSynopsis;
+  //   quiz.saveQuiz(); // استخدام وظيفة saveQuiz
+  // }
 
   render() {
     const { handleSubmit, pristine, reset, submitting } = this.props;
 
     return (
       <div className="QuizForm">
-        <form name="quiz-form" onSubmit={handleSubmit(this.handleSubmit)}>
+        <form name="quiz-form" onSubmit={handleSubmit(this.onSubmit)}>
           <Field
             name="quizTitle"
             type="text"

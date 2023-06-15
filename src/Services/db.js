@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import mysql2 from 'mysql2';
+//import mysql2 from 'mysql2';
 
 // تكوين اتصال Sequelize بقاعدة البيانات
 const sequelize = new Sequelize('quiz-form-db', 'quiz-form-db', '12345678', {
