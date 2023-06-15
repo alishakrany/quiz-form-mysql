@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://wingkwong.github.io/react-quiz-form/",
   "dependencies": {
-    "firebase": "^9.6",
+    "firebase": "^9.6.1",
     "mysql2": "^3.3.5",
     "pg-hstore": "^2.3.4",
     "react": "^16.3.2",
