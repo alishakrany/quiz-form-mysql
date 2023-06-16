@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Quiz form",
+  "name": "Quiz form with firebase",
+  "version": "1.0.0",
   "icons": [
     {
       "src": "favicon.ico",
