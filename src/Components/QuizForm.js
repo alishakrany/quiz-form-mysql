@@ -10,6 +10,12 @@ import {firestore} from '../Services/firebaseConfig'; // استيراد ملف �
 // import Quiz, { saveQuiz } from '../Services/QuizModel';
 
 class QuizForm extends Component {
+  state = {
+    submitted: false
+  };
+
+
+
   renderInputField = ({ input, label, type, meta: { touched, error } }) => (
     <div>
       <label>{label}</label>
@@ -155,14 +161,15 @@ class QuizForm extends Component {
 
   onSubmit = (values) => {
     // حفظ الاختبار في قاعدة البيانات Firebase
-    firestore.database().ref('quizzes').push(values)
-      .then(() => {
-        // تم حفظ الاختبار بنجاح
-        console.log('Quiz saved successfully')
-      })
-      .catch((error) => {
-        // حدث خطأ أثناء حفظ الاختبار
-      });
+    firestore.collection('quizzes').add(values)
+    .then((docRef) => {
+      console.log('Quiz saved successfully:', docRef.id);
+     this.setState({ submitted: true });
+        this.props.reset();
+    })
+    .catch((error) => {
+      console.error('Error saving quiz:', error);
+    });
   };
 
 
@@ -177,9 +184,16 @@ class QuizForm extends Component {
 
   render() {
     const { handleSubmit, pristine, reset, submitting } = this.props;
+    const { submitted } = this.state;
+
 
     return (
       <div className="QuizForm">
+         {submitted && (
+          <p style={{ color: 'green', fontWeight: 'bold', textAlign: 'center', fontSize: '25px', marginBottom:'7px' }}>
+            تم إرسال البيانات بنجاح!
+          </p>
+        )}
         <form name="quiz-form" onSubmit={handleSubmit(this.onSubmit)}>
           <Field
             name="quizTitle"
