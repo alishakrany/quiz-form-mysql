@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, {useEffect, useState, Component } from 'react';
 import { connect } from 'react-redux';
 import { Field, FieldArray, reduxForm, formValueSelector } from 'redux-form';
 import range from 'lodash/range';
 import validate from '../Helpers/validate';
-
+import CategorySelection from './Category';
 import {firestore} from '../Services/firebaseConfig'; // استيراد ملف التكوين الخاص بـ Firebase
 
 // استيراد وظيفة حفظ الاختبار
@@ -13,7 +13,6 @@ class QuizForm extends Component {
   state = {
     submitted: false
   };
-
 
 
   renderInputField = ({ input, label, type, meta: { touched, error } }) => (
@@ -63,20 +62,20 @@ class QuizForm extends Component {
   renderTextAnswers = ({ fields, question, meta: { error } }) => (
     <ul>
       <li>
-        <button type="button" onClick={() => fields.push()}>Add Answer</button>
+        <button type="button" onClick={() => fields.push()}> إضافة اجابة</button>
       </li>
       {fields.map((answer, index) => (
         <li key={index}>
           <button
             type="button"
-            title="Remove Answer"
+            title="حذف الاجابة"
             onClick={() => fields.remove(index)}
           />
           <Field
             name={answer}
             type="text"
             component={this.renderInputField}
-            label={`Answer #${index + 1}`}
+            label={`اجابة #${index + 1}`}
           />
         </li>
       ))}
@@ -84,11 +83,11 @@ class QuizForm extends Component {
         <Field
           name={`${question}.correctAnswer`}
           component={this.renderSelectField}
-          label="Correct Answer"
+          label="الاجابة الصحيحة"
         >
-          <option value="">Please select correct answer</option>
+          <option value="">اختر الاجابة الصحيحة</option>
           {fields.map((answer, index) => (
-            <option key={index + 1} value={index + 1}>{`Answer #${index + 1}`}</option>
+            <option key={index + 1} value={index + 1}>{`الاجابة #${index + 1}`}</option>
           ))}
         </Field>
       </li>
@@ -100,75 +99,75 @@ class QuizForm extends Component {
   renderQuestions = ({ fields, meta: { touched, error, submitFailed } }) => (
     <ul>
       <li>
-        <button type="button" onClick={() => fields.push({})}>Add Question</button>
+        <button type="button" onClick={() => fields.push({})}> إضافة سؤال</button>
         {(touched || submitFailed) && error && <span>{error}</span>}
       </li>
       {fields.map((question, index) => (
         <li key={index}>
           <button
             type="button"
-            title="Remove Question"
+            title="حذف السؤال"
             onClick={() => fields.remove(index)}
           />
-          <h4>Question #{index + 1}</h4>
+          <h4>السؤال #{index + 1}</h4>
           <Field
             name={`${question}.question`}
             type="text"
             component={this.renderInputField}
-            label="Question Title"
+            label="السؤال"
           />
           <Field
             name={`${question}.questionType`}
             component={this.renderSelectQuestionTypeField}
-            label="Question Type"
+            label="نوع السؤال"
+            defaultValue="text"
           >
-            <option value="">Please select a question type</option>
-            <option value="text">Text</option>
-            <option value="photo">Photo</option>
+            <option  value="text">نص</option>
+            <option value="photo">صورة</option>
           </Field>
           <FieldArray name={`${question}.answers`} component={this.renderTextAnswers} question={question} />
           <Field
             name={`${question}.messageForCorrectAnswer`}
             type="text"
             component={this.renderTextareaField}
-            label="Message for Correct Answer"
+            label="عندما تكون الاجابة صحيحة"
           />
           <Field
             name={`${question}.messageForIncorrectAnswer`}
             type="text"
             component={this.renderTextareaField}
-            label="Message for Incorrect Answer"
+            label="عندما تكون الاجابة خطأ"
           />
           <Field
             name={`${question}.explanation`}
             type="text"
             component={this.renderTextareaField}
-            label="Explanation"
+            label="التفسير"
           />
           <Field
             name={`${question}.point`}
             type="number"
             component={this.renderInputField}
-            label="Point"
+            label="الدرجة"
           />
+
         </li>
       ))}
     </ul>
   );
 
-
-
-
+//=============== send data to firebase ====================
   onSubmit = (values) => {
+    const { category, ...data } = values; // استخراج قيمة الفئة من القيم المدخلة
     // حفظ الاختبار في قاعدة البيانات Firebase
-    firestore.collection('quizzes').add(values)
+    firestore.collection(category || 'other').add(values)
     .then((docRef) => {
-      console.log('Quiz saved successfully:', docRef.id);
+      console.log('تم ارسال الاختبار بنجاح:', docRef.id);
      this.setState({ submitted: true });
         this.props.reset();
     })
     .catch((error) => {
-      console.error('Error saving quiz:', error);
+      console.error('حدث خطأ ما اثناء الارسال:', error);
     });
   };
 
@@ -181,6 +180,8 @@ class QuizForm extends Component {
   //   quiz.quizSynopsis = values.quizSynopsis;
   //   quiz.saveQuiz(); // استخدام وظيفة saveQuiz
   // }
+
+  
 
   render() {
     const { handleSubmit, pristine, reset, submitting } = this.props;
@@ -195,23 +196,38 @@ class QuizForm extends Component {
           </p>
         )}
         <form name="quiz-form" onSubmit={handleSubmit(this.onSubmit)}>
+
+          <Field
+            name="category"
+            component={this.renderSelectField}
+            label="الفئة"
+            //value="2"
+          >
+              <option value="">الفئة</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="other">3</option>
+          </Field>           
+
+        {/*  <CategorySelection /> */}
           <Field
             name="quizTitle"
             type="text"
             component={this.renderInputField}
-            label="Quiz Title"
+            label="عنوان الاختبار"
           />
           <Field
             name="quizSynopsis"
             type="text"
             component={this.renderTextareaField}
-            label="Quiz Synopsis"
+            label="وصف الاختبار"
           />
           <FieldArray name="questions" component={this.renderQuestions} />
           <div>
-            <button type="submit" disabled={submitting}>Submit</button>
+            <button type="submit" disabled={submitting}>ارسال</button>
             <button type="button" disabled={pristine || submitting} onClick={reset}>
-              Clear Values
+             مسح القيم
             </button>
           </div>
         </form>

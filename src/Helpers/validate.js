@@ -1,20 +1,20 @@
 const validate = values => {
   const errors = {}
   if (!values.quizTitle) {
-    errors.quizTitle = 'Required'
+    errors.quizTitle = 'مطلوب'
   }
   if (!values.questions || !values.questions.length) {
-    errors.questions = { _error: 'At least one question must be entered' }
+    errors.questions = { _error: 'يجب ان يكون هناك سؤال واحد على الاقل' }
   } else {
     const questionsArrayErrors = []
     values.questions.forEach((question, questionIndex) => {
       const questionErrors = {}
       if (!question || !question.question) {
-        questionErrors.question = 'Required'
+        questionErrors.question = 'مطلوب'
         questionsArrayErrors[questionIndex] = questionErrors
       }
         if (!question.questionType){
-          questionErrors.questionType =  'Required';
+          questionErrors.questionType =  'مطلوب';
           questionsArrayErrors[questionIndex] = questionErrors;
           
         }
@@ -23,7 +23,7 @@ const validate = values => {
         const answerArrayErrors = []
         question.answers.forEach((answer, answerIndex) => {
         if (!answer || !answer.length) {
-            answerArrayErrors[answerIndex] = 'Required'
+            answerArrayErrors[answerIndex] = 'مطلوب'
           }
         })
 
@@ -36,11 +36,11 @@ const validate = values => {
           if (!questionErrors.answers) {
             questionErrors.answers = []
           }
-          questionErrors.answers._error = 'No more than four answers allowed'
+          questionErrors.answers._error = 'اقصى عدد مسموح من الاجابات هو 4 فقط'
           questionsArrayErrors[questionIndex] = questionErrors
         }
         if (!question.correctAnswer){
-          questionErrors.correctAnswer =  'Required';
+          questionErrors.correctAnswer =  'مطلوب';
           questionsArrayErrors[questionIndex] = questionErrors;
          }
       }
@@ -49,15 +49,24 @@ const validate = values => {
         if (!questionErrors.answers) {
           questionErrors.answers = []
         }
-        questionErrors.answers._error = 'At least one answer must be entered'
+        questionErrors.answers._error = 'يجب ادخال إجابة واحدة على الاقل'
         questionsArrayErrors[questionIndex] = questionErrors
       }
+
+      if (!question.point){
+        questionErrors.point =  'مطلوب';
+        questionsArrayErrors[questionIndex] = questionErrors;
+        
+      }
+  
 
     })
 
     if (questionsArrayErrors.length) {
       errors.questions = questionsArrayErrors
     }
+
+
   }
   return errors
 }
